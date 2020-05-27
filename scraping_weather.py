@@ -27,7 +27,7 @@ def api_get_date():
 def get_weather_data():
     api_date, api_time = api_get_date()
     url            = "http://apis.data.go.kr/1360000/VilageFcstInfoService/getVilageFcst?"
-    key            = "serviceKey=" + ""
+    key            = "serviceKey=" + "%2FKmMCVQsc00Z1K0UN%2FRo5XbVIroiF%2Fb2bZ47XJ8LoLCdv6LOnHETW6aY0aNS5wJL9vlw9XNgCokdH11cVx%2FINA%3D%3D"
     numofrows      = "&numOfRows=" + "10"
     pageno         = "&pageNo=" + "1"
     base_date      = "&base_date=" + api_date
@@ -154,15 +154,13 @@ cur.execute("SELECT * FROM weather")
 conn.close()
 
 # Telegram 
-telgm_token = ''
+telgm_token = '1100317510:AAHj4lKEBTELIR-vnrN62Mnk4YvCHH_3ql4'
 bot = telegram.Bot(token=telgm_token)
 updates = bot.getUpdates()                 # 무언가를 주기적으로 타이핑해주어야 챗봇이 끊기지 않고 있다. 업데이트 내역을 받아온다.
 id = []
 for u in updates:               
     id = u.message['chat']['id']
 bot.sendMessage(chat_id=id, text=msg[0])
-
-
 
 
 
