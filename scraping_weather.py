@@ -27,7 +27,7 @@ def api_get_date():
 def get_weather_data():
     api_date, api_time = api_get_date()
     url            = "http://apis.data.go.kr/1360000/VilageFcstInfoService/getVilageFcst?"
-    key            = "serviceKey=" + "%2FKmMCVQsc00Z1K0UN%2FRo5XbVIroiF%2Fb2bZ47XJ8LoLCdv6LOnHETW6aY0aNS5wJL9vlw9XNgCokdH11cVx%2FINA%3D%3D"
+    key            = "serviceKey=" + ""
     numofrows      = "&numOfRows=" + "10"
     pageno         = "&pageNo=" + "1"
     base_date      = "&base_date=" + api_date
@@ -154,7 +154,7 @@ cur.execute("SELECT * FROM weather")
 conn.close()
 
 # Telegram 
-telgm_token = '1100317510:AAHj4lKEBTELIR-vnrN62Mnk4YvCHH_3ql4'
+telgm_token = ''
 bot = telegram.Bot(token=telgm_token)
 updates = bot.getUpdates()                 # 무언가를 주기적으로 타이핑해주어야 챗봇이 끊기지 않고 있다. 업데이트 내역을 받아온다.
 id = []
@@ -166,19 +166,3 @@ bot.sendMessage(chat_id=id, text=msg[0])
 
 
 
-git 생성과정 예제
-git config --global user.name 계정이름
-git config --global user.email 메일주소
-git config --global --list
-echo "# web scraping test by jh"
-git init
-git add README_jh.md
-git remote add origin https://github.com/csj2020/web_scraping.git
-git add twurl.py
-git commit -m "add_a_testfile"
-git pull https://github.com/csj2020/web_scraping.git master
-git push https://github.com/csj2020/web_scraping.git master
-
-칸만보드?
-칸맘보드? 노션에도 있다. 
-git log와 git diff 많이 쓴다. 
