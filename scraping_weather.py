@@ -40,13 +40,12 @@ def get_weather_data():
     data           = urllib.request.urlopen(api_url).read().decode('utf8')            # 주어진 url 의 내용을 utf-8로 디코드하며 읽는 메서드이다.
     data_json      = json.loads(data)
     parsed_json    = data_json['response']['body']['items']['item']                   # response{ 'header': {...}, 'body': {..., 'items': {'item': {...}}}} 를 찾아가는 경로이다.
-    target_date    = parsed_json[0]['fcstDate']                                       # api_date, api_time 과 중복되는 부분이기는 하다.
+    target_date    = parsed_json[0]['fcstDate']     
     target_time    = parsed_json[0]['fcstTime']
     passing_data   = {}    
-    date_calibrate = target_date    # date of TMX, TMN
-
-    if target_time > '1300':
-        date_calibrate = str(int(target_date) + 1)
+#    date_calibrate = target_date    # date of TMX, TMN
+#    if target_time > '1300':
+#        date_calibrate = str(int(target_date) + 1)
     
     for one_parsed in parsed_json:
         # one_parsed 의 출력 형태 : {'baseDate': '20200524', 'baseTime': '2300', 'category': 'POP', 'fcstDate': '20200525', 'fcstTime': '0300', 'fcstValue': '20', 'nx': 55, 'ny': 127}
@@ -77,8 +76,7 @@ PTY 3 눈
 PTY 4 소나기
 SKY 1 맑음
 SKY 3 구름 많음
-SKY 4 흐림
-"""
+SKY 4 흐림  """
     msg = []
     ma  = msg.append
     ma('오늘은 ' + time.ctime()[:11] + '입니다\n')
@@ -142,17 +140,15 @@ def db_insert(result):
     # +-------------+------+------+------+------+------+------+------+------+------+
 
 
-
 def telegram_send(msg):
     # Telegram 
     telgm_token = '1100317510:AAHj4lKEBTELIR-vnrN62Mnk4YvCHH_3ql4'
     bot = telegram.Bot(token=telgm_token)
     updates = bot.getUpdates()                 # 무언가를 주기적으로 타이핑해주어야 챗봇이 끊기지 않고 있다. 업데이트 내역을 받아온다.
-    id = []
+    telid = []
     for u in updates:               
-        id = u.message['chat']['id']
-    bot.sendMessage(chat_id=id, text=msg[0])
-
+        telid = u.message['chat']['id']
+    bot.sendMessage(chat_id=telid, text=msg[0])
 
 
 def main():
