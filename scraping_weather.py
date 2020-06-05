@@ -1,9 +1,10 @@
 #!/usr/local/bin/python3.8
 
-import time, re, sys, datetime
-import urllib.request, pytz, json, telegram, mariadb
+import time, re, sys, datetime, os
+import urllib.request, json, mariadb, pytz
 from pandas import DataFrame
-
+import telegram
+from telegram.ext import Updater, MessageHandler, Filters, CommandHandler 
 
 def api_get_date():
     standard_time = [ 2, 5, 8, 11, 14, 17, 20, 23 ]  # api response time. 1일 8회의 기상정보를 제공한다. 각 시간의 10분에 API 제공된다.
@@ -39,8 +40,8 @@ def get_weather_data():
     pageno = "&pageNo=" + "1"
     base_date = "&base_date=" + api_date
     base_time = "&base_time=" + api_time
-    nx = "&nx=" + "62"
-    ny = "&ny=" + "123"
+    nx = "&nx=" + "61"
+    ny = "&ny=" + "126"
     datatype = "&dataType=" + "json"
     api_url = (
         url + key + numofrows + pageno + base_date + base_time + nx + ny + datatype
@@ -168,24 +169,93 @@ def db_insert(result):
     # +-------------+------+------+------+------+------+------+------+------+------+
 
 
-def telegram_send(msg):
-    # Telegram
-    telgm_token = "1151854531:AAExh34wIMxJJIpfWWUed3TBuYglQWGAeF4"
-    bot = telegram.Bot(token=telgm_token)
-    chat_id = bot.getUpdates()[-1].message.chat.id
-    # 무언가를 주기적으로 타이핑해주어야 챗봇이 끊기지 않고 있다. 업데이트 내역을 받아온다.
-    bot.sendMessage(chat_id=chat_id, text=msg[0])
+
+
+def get_message(bot, update) :
+    update.message.reply_text("전달받은 메시지입니다: ")
+    update.message.reply_text(update.message.text)
+    res = update.message.text
+    '''
+     update:  
+     {'message_id': 1041, 
+     'date': 1591353234, 
+     'chat': {'id': 798670742, 'type': 'private', 'first_name': 'jinho'}, 
+     'text': 'sdjflsdkfjsdlkfjsd', 
+     'entities': [], 
+     'caption_entities': [], 
+     'photo': [], 
+     'new_chat_members': [], 
+     'new_chat_photo': [], 
+     'delete_chat_photo': False, 
+     'group_chat_created': False, 
+     'supergroup_chat_created': False, 
+     'channel_chat_created': False, 
+     'from': {'id': 798670742, 'first_name': 'jinho', 'is_bot': False, 'language_code': 'en'}}
+    '''
+
+
+def func_stop(bot, update):
+    jhbot.sendMessage(chat_id = cid, text = '챗봇 사용을 종료합니다')
+    os._exit(1)
+
+def start_info():
+    infomsg = """
+        챗봇 사용을 시작합니다
+
+        사용법 : 
+                1 입력  
+                서울특별시 강남구 청담동 날씨가 출력됩니다.
+                
+                2 입력
+                프로그램을 종료합니다. """
+                
+    for txt in infomsg.split('\r'):
+        jhbot.sendMessage(chat_id = cid, text = txt)
+
+def bot_weather(bot, update):
+    for wea in msg:
+        jhbot.sendMessage(chat_id = cid, text = wea)
 
 
 def main():
-    result = get_weather_data()
-    msg = weather_data(result)
-
     db_insert(result)
-    telegram_send(msg)  # 출력 형태 : {'POP': '20', 'PTY': '0', ...... , 'WSD': '0.7'}
+    
+    # ChatBot Function execute
+    # 메시지 보내는 과정 : telegram.Bot(토큰키).sendMessage(chat_id = 챗룸ID, text = 발송내용)
+    
+    # 안내 메시지 발송
+    start_info()
+
+    # /stop 명령 처리기
+    command_handlerStop = CommandHandler('stop', func_stop)
+    updater.dispatcher.add_handler(command_handlerStop)
+    
+    # /weather 명령 처리기
+    command_handlerWeather = CommandHandler('weather', bot_weather)
+    updater.dispatcher.add_handler(command_handlerWeather)
+    
+    # 주소 값을 받아오는 챗봇 기능
+    message_handler = MessageHandler(Filters.text, get_message) # 실제 메시지를 저장하는 역할하는 부분 
+    updater.dispatcher.add_handler(message_handler)
+
+    # 텔레그램과 연결 유지
+    updater.start_polling(timeout=3, clean=True)
+    updater.idle()
 
 
 if __name__ == "__main__":
+    # Weather API
+    result = get_weather_data()
+    msg    = weather_data(result)
+    
+    # ChatBot
+    my_token = '1215765058:AAG68ELcpZ3nYsWOcN88r6m8N4svbb6_lmo'
+    #updater  = Updater(my_token, use_context=True)
+    updater  = Updater(my_token)
+    jhbot    = telegram.Bot(my_token)
+    cid      = 798670742
+    
     main()
 
-# telegram id는 한개 챗룸에 한개만 사용하자. update를 불러오는 과정에서 꼬임이 있는 듯하다. -> 계정을 새로 만드니 해결됐다.
+# TIP : 같은 폴더에 오류가 있는 파이썬 파일이 있을 경우 같이 오류가 발생한다.
+#       import 안해도 라이브러리 파일로 인식해 오류 나는 듯하다
