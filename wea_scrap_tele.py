@@ -228,28 +228,41 @@ def get_message(bot, update) :
     if res != "1" and res != "2":
         res = update.message.text
         update.message.reply_text(res + " 을(를) 입력 받았습니다")
-        jhbot.sendMessage(chat_id = cid, text = find_addr(res))
-
+        res = res.split()
+        if len(res) == 1:
+            jhbot.sendMessage(chat_id = cid, text = find_addr(str(res[0])))
+            print(str(res[0]))
+        elif len(res) == 2:
+            jhbot.sendMessage(chat_id = cid, text = find_addr(str(res[0]), str(res[1])))
+            print(str(res[0], res[1]))
+           # for txt in res:
+           #     print('res[txt]: res[{0}], type은 {1}'.format(txt, type(txt)))
+           #     jhbot.sendMessage(chat_id = cid, text = find_addr(txt))
+        else: print('정확하게 입력하세요')
 
 def find_addr(*address1):
     if len(address1) == 1:                  # length가 1이면 동주소만 입력되는 최초 검색 처리 부분이다.
         p = re.compile(rf'(\w+)\s+(\w+)\s+({address1[0]})+\s+(\w+)\s+(\w+)\s+')
         with open('data.txt', 'r') as f:
-            jhbot.sendMessage(chat_id = cid, text = f'{address1} 을 검색합니다')
+            jhbot.sendMessage(chat_id = cid, text = f'{address1[0]} 을(를) 검색합니다')
             jhbot.sendMessage(chat_id = cid, text = 'USAGE: 아래 주소 중 정확한 주소를 입력하세요. ex) 강남구 압구정동')
             for txt in f.readlines():
                 if p.search(txt):
                     jhbot.sendMessage(chat_id = cid, text = txt)
 
-    if len(address1) == 2:
+    elif len(address1) == 2:
         p = re.compile(rf'(\w+)\s+({address1[0]})\s+({address1[1]})\s+(\d+)\s+(\d+)\s+')
         with open('data.txt', 'r') as f:
             for txt in f.readlines():
                 if p.search(txt):   
                     print(my_vil := p.search(txt).group(2,3,4,5))
-                    a, b = my_vil[2], my_vil[3]
-                    print('좌표값: ', a, b)
-                    
+                    region = my_vil[0] + my_vil[1]
+                    result = get_weather_data(my_vil[2], my_vil[3])
+                    newmsg = weather_data(result)[0]
+                    jhbot.sendMessage(chat_id = cid, text = my_vil[0] + '' + my_vil[1] + ' 날씨입니다')
+                    for txt in newmsg.split('\r'):
+                        jhbot.sendMessage(chat_id = cid, text = txt)
+
 
     '''
      update:  
