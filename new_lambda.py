@@ -3,7 +3,7 @@ import requests, pymysql
 from collections import defaultdict
 
 # 정상 동작함. (완료)
-# 마지막에 Post 로 업데이트하는 부분은 방화벽 열리면 기능 만들어 확인.
+
 
 def lambda_handler(event, context):
     # Enviroment settings
